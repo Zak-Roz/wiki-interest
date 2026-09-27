@@ -1,0 +1,124 @@
+{
+  "skill_name": "wiki-interest",
+  "evals": [
+    {
+      "id": 1,
+      "name": "compare-two-languages-fasting",
+      "prompt": "Порівняй зростання інтересу до інтервального голодування в польськомовній та чеськомовній Wikipedia за останні два роки.",
+      "expected_output": "Names the pl and cs articles used, gives views/day, YoY without spikes and per-1M share for both, says which grows faster and which is bigger, mentions that Czech growth is partly spike-driven if so, states the two universal caveats, answers in Ukrainian.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Runs `wiki.py run` with --langs pl,cs and a ~24-month window (default or explicit)"
+        },
+        {
+          "text": "Names the resolved article title for each language in the answer"
+        },
+        {
+          "text": "Quotes the 'YoY w/o spikes' figure (not only raw YoY) as the growth number"
+        },
+        {
+          "text": "Uses the per-1M-edition column when comparing sizes across languages"
+        },
+        {
+          "text": "Carries the trust verdict and its reasons into the answer"
+        },
+        {
+          "text": "Answers in Ukrainian and does not invent numbers absent from the tool output"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "single-language-trust-astronomy",
+      "prompt": "Ми думаємо додати курс з астрономії до освітнього застосунку. Чи зростає інтерес до цієї теми в україномовній Wikipedia, і наскільки цьому зростанню можна довіряти?",
+      "expected_output": "Runs the uk analysis with --topic-lang uk, reports growth without spikes, explicitly answers the trust question using the trust checks (edition-wide growth, spikes, seasonality), suggests validating with related articles or another source.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Passes --topic-lang uk (or an equivalent English topic) and --langs uk"
+        },
+        {
+          "text": "Answers the 'is it growing' question with the despiked YoY and the trend consistency"
+        },
+        {
+          "text": "Answers the 'can we trust it' question using the trust checks (mentions vs-edition or spikes or seasonality as applicable)"
+        },
+        {
+          "text": "Mentions that one article stands in for the topic and offers to add related articles"
+        },
+        {
+          "text": "States that pageviews measure curiosity, not willingness to pay"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "multi-language-report-english",
+      "prompt": "Ми створюємо застосунок для вивчення мов. Порівняй інтерес до вивчення англійської у вибраних нами мовних розділах — uk, pl, cs, de, tr — та підготуй короткий звіт: які аудиторії варто дослідити наступними й чому?",
+      "expected_output": "Runs with --topic 'English language' --langs uk,pl,cs,de,tr, explains the ranking formula, recommends 1-2 audiences with reasons tied to growth/share/volume and confidence, writes narrative.json and produces the final PDF, states the article ≠ 'learning English' caveat.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Maps 'вивчення англійської' to an article-backed concept such as 'English language' and says so"
+        },
+        {
+          "text": "Runs with all five languages in one command"
+        },
+        {
+          "text": "Gives a ranked recommendation with reasons that cite growth, share or volume and the confidence"
+        },
+        {
+          "text": "Writes a narrative.json and runs `wiki.py report` to produce the final PDF"
+        },
+        {
+          "text": "Reports the PDF path to the user"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "follow-up-change-assumptions",
+      "prompt": "Дякую. А тепер додай словацьку і візьми три роки замість двох. І чеську статтю візьми 'Přerušovaný půst', якщо ще не взяв.",
+      "expected_output": "Re-runs eval 1 with --langs pl,cs,sk and --months 36 (or --from/--to), keeps --out per topic, mentions the cache made it fast, notes any search-fallback flag for sk.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Re-runs with sk added and a 36-month window rather than re-explaining the old result"
+        },
+        {
+          "text": "Flags if sk resolved via search fallback and asks for confirmation"
+        },
+        {
+          "text": "Compares new numbers with the previous run where relevant"
+        }
+      ],
+      "depends_on": 1
+    },
+    {
+      "id": 5,
+      "name": "restricted-sandbox-network-blocked",
+      "prompt": "Порівняй зростання інтересу до інтервального голодування в польськомовній та чеськомовній Wikipedia за останні два роки.",
+      "expected_output": "Run in an environment where Wikimedia hosts are blocked (e.g. claude.ai chat with default egress). The agent reports NETWORK BLOCKED in Ukrainian, lists the domains to allow and where, shares the helper page, and does not produce any numbers or substitute other sources. After the user uploads wiki-data.json it runs --import and answers normally.",
+      "files": [],
+      "environment": "WIKI network blocked: run with an egress proxy that denies wikimedia.org, www.wikidata.org, *.wikipedia.org",
+      "assertions": [
+        {
+          "text": "States that no data could be retrieved and names the blocked domains"
+        },
+        {
+          "text": "Offers option A (allow domains, with the settings location) and option B (helper page)"
+        },
+        {
+          "text": "Shares the generated wiki-fetch-data.html file with the user"
+        },
+        {
+          "text": "Does not give any pageview numbers, estimates, or results from other sources"
+        },
+        {
+          "text": "After an uploaded wiki-data.json, runs `run --import` and gives the normal answer"
+        }
+      ]
+    }
+  ]
+}

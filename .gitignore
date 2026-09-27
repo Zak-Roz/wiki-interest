@@ -1,0 +1,6 @@
+__pycache__/
+.pytest_cache/
+wiki-interest-out/
+out/
+evals/runs/
+.venv/
